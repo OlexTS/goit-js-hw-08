@@ -4,7 +4,7 @@ const formRef = document.querySelector('.feedback-form');
 formRef.addEventListener('input', throttle(onChangeInput, 500));
 formRef.addEventListener('submit', onFormSubmit);
 const LOCALESTORAGE_KEY = 'feedback-form-state';
-const inputValue = {};
+let inputValue = JSON.parse(localStorage.getItem(LOCALESTORAGE_KEY)) || {};
 
 function onChangeInput(event) {
   if (event.target.nodeName === 'INPUT') {
@@ -12,19 +12,20 @@ function onChangeInput(event) {
   } else if (event.target.nodeName === 'TEXTAREA') {
     inputValue.message = event.target.value;
   }
-
   localStorage.setItem(LOCALESTORAGE_KEY, JSON.stringify(inputValue));
 }
 
-const parsedVal = JSON.parse(localStorage.getItem(LOCALESTORAGE_KEY));
-if (parsedVal) {
-  formRef.elements.email.value = parsedVal.email || '';
-  formRef.elements.message.value = parsedVal.message || '';
-}
+formRef.elements.email.value = inputValue.email || '';
+formRef.elements.message.value = inputValue.message || '';
 
 function onFormSubmit(event) {
   event.preventDefault();
-  console.log(inputValue);
-  localStorage.removeItem(LOCALESTORAGE_KEY);
-  formRef.reset();
+  if (inputValue.email && inputValue.message) {
+    console.log(inputValue);
+    localStorage.removeItem(LOCALESTORAGE_KEY);
+    formRef.reset();
+    inputValue = {};
+  } else {
+    alert('Error');
+  }
 }
